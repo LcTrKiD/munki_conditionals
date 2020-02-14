@@ -93,8 +93,8 @@ class KextPolicy(object):
                 _data = plistlib.load(_f)
 
         if _data:
-            _data['kext_teams'] = self.conditions.get('kext_teams', None)
-            _data['kext_bundles'] = self.conditions.get('kext_bundles', None)
+            _data['kext_mdm_teams'] = self.conditions.get('kext_teams', None)
+            _data['kext_mdm_bundles'] = self.conditions.get('kext_bundles', None)
         else:
             _data = self.conditions
 
