@@ -71,15 +71,15 @@ class KextPolicy(object):
                 for team_id, bundle_id, allowed in _query:
                     if allowed == 1:
                         if team_id:
-                            result['kext_teams'].add(team_id)
+                            result['kext_mdm_teams'].add(team_id)
 
                         if bundle_id:
-                            result['kext_bundles'].add(bundle_id)
+                            result['kext_mdm_bundles'].add(bundle_id)
 
             _sqldb.disconnect(self._kextpolicy)
 
-            result['kext_teams'] = list(result['kext_teams'])
-            result['kext_bundles'] = list(result['kext_bundles'])
+            result['kext_mdm_teams'] = list(result['kext_mdm_teams'])
+            result['kext_mdm_bundles'] = list(result['kext_mdm_bundles'])
         else:
             exit(1)
 
@@ -93,8 +93,8 @@ class KextPolicy(object):
                 _data = plistlib.load(_f)
 
         if _data:
-            _data['kext_mdm_teams'] = self.conditions.get('kext_teams', None)
-            _data['kext_mdm_bundles'] = self.conditions.get('kext_bundles', None)
+            _data['kext_mdm_teams'] = self.conditions.get('kext_mdm_teams', None)
+            _data['kext_mdm_bundles'] = self.conditions.get('kext_mdm_bundles', None)
         else:
             _data = self.conditions
 
