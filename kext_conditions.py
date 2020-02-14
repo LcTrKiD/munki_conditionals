@@ -87,9 +87,9 @@ class KextPolicy(object):
 
             result['kext_teams'] = list(result['kext_teams'])
             result['kext_bundles'] = list(result['kext_bundles'])
-
         else:
-            exit(1)
+            result['kext_teams'] = list()
+            result['kext_bundles'] = list()
 
         return result
 
@@ -101,24 +101,22 @@ class KextPolicy(object):
                 with open(self._conditions_file, 'rb') as _f:
                     _data = plistlib.load(_f)
             except AttributeError:
-                plistlib.readPlist(self._conditions_file)
+                _data = plistlib.readPlist(self._conditions_file)
 
-        if _data:
-            _data.update(self.conditions)
-        else:
+        if not _data:
             _data = dict()
-            _data.update(self.conditions)
 
-        if _data:
-            with open(self._conditions_file, 'wb') as _f:
-                try:
-                    plistlib.dump(_data, _f)
-                    exit(0)
-                except AttributeError:
-                    plistlib.writePlist(_data, self._conditions_file)
-                    exit(0)
-                except Exception:
-                    exit(1)
+        _data.update(self.conditions)
+
+        with open(self._conditions_file, 'wb') as _f:
+            try:
+                plistlib.dump(_data, _f)
+                exit(0)
+            except AttributeError:
+                plistlib.writePlist(_data, self._conditions_file)
+                exit(0)
+            except Exception:
+                exit(1)
 
 
 def main():
