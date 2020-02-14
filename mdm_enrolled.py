@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+#!/usr/local/munki/python
 
 import os
 import plistlib
