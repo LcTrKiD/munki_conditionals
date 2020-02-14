@@ -18,11 +18,13 @@ class PPPCPConditions(object):
         result = None
 
         if os.path.exists(self._mdmoverrides):
-            with open(self._mdmoverrides, 'rb') as _f:
-                try:
+            try:
+                with open(self._mdmoverrides, 'rb') as _f:
                     result = plistlib.load(_f)
-                except Exception:
-                    exit(1)
+            except AttributeError:
+                result = plistlib.readPlist(self._conditions_file)
+            except Exception:
+                exit(1)
         else:
             exit(1)
 
@@ -35,7 +37,6 @@ class PPPCPConditions(object):
 
         for _override, _payloads in _overrides.items():
             for _payload, _values in _payloads.items():
-                # print(_payload)
                 _identifier = _values.get('Identifier', None)
 
                 result['pppcp_payloads'].add(_identifier)
@@ -48,20 +49,28 @@ class PPPCPConditions(object):
         _data = None
 
         if os.path.exists(self._conditions_file):
-            with open(self._conditions_file, 'rb') as _f:
-                _data = plistlib.load(_f)
+            try:
+                with open(self._conditions_file, 'rb') as _f:
+                    _data = plistlib.load(_f)
+            except AttributeError:
+                plistlib.readPlist(self._conditions_file)
 
         if _data:
-            _data['pppcp_payloads'] = self.conditions['pppcp_payloads']
+            _data.update(self.conditions)
         else:
-            _data = self.conditions
+            _data = dict()
+            _data.update(self.conditions)
 
-        with open(self._conditions_file, 'wb') as _f:
-            try:
-                plistlib.dump(_data, _f)
-                exit(0)
-            except Exception:
-                exit(1)
+        if _data:
+            with open(self._conditions_file, 'wb') as _f:
+                try:
+                    plistlib.dump(_data, _f)
+                    exit(0)
+                except AttributeError:
+                    plistlib.writePlist(_data, self._conditions_file)
+                    exit(0)
+                except Exception:
+                    exit(1)
 
 
 def main():
