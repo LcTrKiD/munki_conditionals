@@ -19,7 +19,6 @@ class SQLite():
                 self.connection = sqlite3.connect(db)
                 self.c = self.connection.cursor()
             except Exception:
-                raise
                 exit(1)
 
     def disconnect(self, db):
@@ -30,9 +29,9 @@ class SQLite():
                 try:
                     self.connection.execute("")
                 except Exception:
-                    raise
+                    exit(1)
             except Exception:
-                raise
+                exit(1)
         except Exception:
             pass
 
@@ -86,10 +85,9 @@ class KextPolicy(object):
                         if bundle_id:
                             result['kext_bundles'].add(bundle_id)
 
-            _sqldb.disconnect(self._kextpolicy)
-
             result['kext_teams'] = list(result['kext_teams'])
             result['kext_bundles'] = list(result['kext_bundles'])
+
         else:
             exit(1)
 
@@ -99,22 +97,34 @@ class KextPolicy(object):
         _data = None
 
         if os.path.exists(self._conditions_file):
-            with open(self._conditions_file, 'rb') as _f:
-                _data = plistlib.load(_f)
+            try:
+                with open(self._conditions_file, 'rb') as _f:
+                    _data = plistlib.load(_f)
+            except AttributeError:
+                plistlib.readPlist(self._conditions_file)
 
         if _data:
-            _data['kext_teams'] = self.conditions.get('kext_teams', None)
-            _data['kext_bundles'] = self.conditions.get('kext_bundles', None)
+            _data.update(self.conditions)
         else:
-            _data = self.conditions
+            _data = dict()
+            _data.update(self.conditions)
 
-        with open(self._conditions_file, 'wb') as _f:
-            try:
-                plistlib.dump(_data, _f)
-                exit(0)
-            except Exception:
-                exit(1)
+        if _data:
+            with open(self._conditions_file, 'wb') as _f:
+                try:
+                    plistlib.dump(_data, _f)
+                    exit(0)
+                except AttributeError:
+                    plistlib.writePlist(_data, self._conditions_file)
+                    exit(0)
+                except Exception:
+                    exit(1)
 
 
-kext_conditions = KextPolicy()
-kext_conditions.write()
+def main():
+    kext_conditions = KextPolicy()
+    kext_conditions.write()
+
+
+if __name__ == '__main__':
+    main()
